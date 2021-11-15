@@ -4,25 +4,21 @@ on:
   push:
     branches: [ main ]
 
-
 jobs:
-
-  build:
-
+  buildImage:
+  
+    name: Build Docker Image
     runs-on: ubuntu-latest
-
+    
     steps:
-
-    - uses: actions/checkout@v2
-    
-    - name: Build container image
-      # run: cd ./misp/ && docker build . --file Dockerfile --tag misp-docker:$(date +%s) --tag misp-docker:latest
-      run: docker build . --file Dockerfile --tag test
-    
-    - name: Log into github container registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+      - uses: actions/checkout@v2
       
-    - name: push image to github container registry
-      run: IMAGE_ID=ghcr.io/${{ github.repository_owner }}/test:${{ github.run_id }} && docker push $IMAGE_ID
-#        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/test:${{ github.run_id }}
+      - name: Build container image
+        run: docker build . --file Dockerfile --tag test
+        
+      - name: Log into ghcr
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+        
+      - name: Push image to ghcr
+        run: IMAGE_ID=ghcr.io/${{ github.repository_owner }}/test:${{ github.run_id }} && docker push $IMAGE_ID
         
